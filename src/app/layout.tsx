@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CDC – Logical Reasoning Worksheet",
-  description: "Interactive solutions and visual explanations for the CDC Logical Reasoning worksheet.",
+  title: "CDC Worksheet – Quantitative Aptitude & Logical Reasoning",
+  description: "Interactive step-by-step solutions and visual explanations for 16 quantitative aptitude and logical reasoning problems.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

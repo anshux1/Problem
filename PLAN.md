@@ -1,1239 +1,1263 @@
-# Build a Beautiful Interactive Solved Worksheet Webpage
+# Build an Interactive Quantitative Aptitude & Logical Reasoning Worksheet Website
 
-Create a polished, modern, responsive educational webpage that presents the complete **CDC – Worksheet: Logical Reasoning** in an interactive and highly visual way.
+Create a beautiful, modern, highly interactive educational webpage that presents and solves **all 16 questions from the provided worksheet**.
 
-The goal is not just to display answers. The webpage should make every problem **easy to understand visually**, with the reasoning shown step-by-step.
+The goal is not simply to display answers. The website should make every problem **easy to understand visually**, with clear step-by-step reasoning, formulas, diagrams, and interactive elements wherever useful.
 
-The original worksheet contains **7 sections and 35 questions**:
-
-1. Direction Sense — 5 questions
-2. Blood Relationship — 5 questions
-3. Seating Arrangement — 5 questions
-4. Number Puzzles — 5 questions
-5. Logical Puzzles — 5 questions
-6. Series — 5 questions
-7. Coding and Decoding — 5 questions
-
-Use the uploaded worksheet as the source of truth for the question wording and options.
+The design should feel like a polished educational product rather than a basic HTML worksheet.
 
 ---
 
-## 1. Overall Design
+## 1. Core Requirements
 
-Build a beautiful educational dashboard rather than a plain question-answer page.
+Build a single-page responsive website containing all **16 questions**, with:
 
-### Visual style
+* Every question in its own separate section/card.
+* Original question clearly displayed.
+* Final answer prominently displayed.
+* Step-by-step solution.
+* Mathematical formulas rendered beautifully using LaTeX.
+* Visual explanations wherever possible.
+* Interactive diagrams for geometry/direction/number puzzles.
+* Clear distinction between:
+
+  * Question
+  * Approach
+  * Working
+  * Final Answer
+  * Important Note, when applicable.
+* Smooth scrolling and navigation.
+* Responsive design for desktop, tablet, and mobile.
+* Excellent typography and spacing.
+* Dark/light mode.
+* Progress indicator showing which question the user is currently viewing.
+
+Do not put all questions into one huge text block.
+
+Each question should feel like an independent mini lesson.
+
+---
+
+# 2. Recommended Technology
 
 Use:
 
-* Modern academic/educational aesthetic
-* Clean typography
-* Large readable question cards
-* Soft gradients
-* Rounded cards
-* Subtle shadows
-* Good spacing
-* Smooth animations
-* Responsive design
-* Mobile-first layout
-* Dark/light mode
-* Accessible contrast
-* Minimal but useful icons
-* Beautiful diagrams wherever they improve understanding
+* React
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* Framer Motion or Motion for animations
+* Lucide React for icons
+* KaTeX or MathJax for mathematical formulas
+* SVG/CSS for diagrams and visualizations
 
-Avoid making it look like a generic admin dashboard.
-
-The page should feel like a **premium interactive reasoning-learning platform**.
+Prefer reusable React components instead of hardcoding everything into one component.
 
 ---
 
-# 2. Page Structure
+# 3. Overall Page Structure
 
-Create:
+Create the following layout:
 
 ### Header
 
-Show:
+A polished sticky header containing:
 
-**CDC – Logical Reasoning Worksheet**
+**CDC Worksheet**
 
 Subtitle:
 
-**Interactive Solutions & Visual Explanations**
+**Quantitative Aptitude & Logical Reasoning**
 
-Include:
+On the right:
 
+* Progress indicator: `Question 1 / 16`
 * Theme toggle
-* Progress indicator
-* Search questions
-* Section navigation
+* Optional search button
 
 ---
 
-## 3. Hero Section
+### Hero Section
 
-At the top display:
+Create a visually attractive introduction.
 
-**Master Logical Reasoning**
+Display:
 
-"Understand every question with step-by-step visual explanations."
+> Quantitative Aptitude & Logical Reasoning
 
-Show statistics:
+Then:
 
-* 7 Sections
-* 35 Questions
-* Step-by-step Solutions
-* Visual Explanations
+> 16 Problems • Step-by-Step Solutions • Visual Explanations
 
-Add a prominent:
+Add a short description:
+
+> Learn the reasoning behind every answer instead of simply memorizing the result.
+
+Include a button:
 
 **Start Solving →**
 
-button that scrolls to the first section.
+which smoothly scrolls to Question 1.
 
 ---
 
-# 4. Section Navigation
+# 4. Question Navigation
 
-Create a sticky section navigation bar/sidebar.
+Add a floating or sticky question navigator.
 
-Sections:
+Display:
 
-```text
-01 Direction Sense
-02 Blood Relationship
-03 Seating Arrangement
-04 Number Puzzles
-05 Logical Puzzles
-06 Series
-07 Coding & Decoding
-```
+`01 02 03 04 05 06 07 08`
 
-Show progress such as:
+`09 10 11 12 13 14 15 16`
 
-```text
-Direction Sense       0/5
-Blood Relationship    0/5
-Seating Arrangement   0/5
-...
-```
+Each number should be clickable and scroll to that question.
 
-When the user completes/reveals a solution, update the progress.
+Change the active question based on scroll position.
+
+Use a visual progress bar:
+
+`████████░░░░░░░░ 8/16`
 
 ---
 
-# 5. IMPORTANT — EACH QUESTION MUST BE SEPARATE
+# 5. Reusable Question Card
 
-Every question must have its own individual card.
+Create a reusable component such as:
 
-Do NOT combine multiple questions into one card.
-
-Each question should look approximately like:
-
-```text
-┌─────────────────────────────────────────────┐
-│ QUESTION 01                         01 / 05 │
-│                                             │
-│ Ravi walks 8 km north...                    │
-│                                             │
-│ ○ A) 2 km                                   │
-│ ○ B) 6 km                                   │
-│ ○ C) 8 km                                   │
-│ ○ D) 14 km                                  │
-│                                             │
-│ [Show Solution]                             │
-└─────────────────────────────────────────────┘
+```tsx
+<QuestionCard
+  number={1}
+  type="age-problem"
+  question="..."
+  answer="..."
+>
+  ...
+</QuestionCard>
 ```
-
-When clicking **Show Solution**, expand the card with the complete explanation.
-
----
-
-# 6. Question Card Behavior
 
 Each card should contain:
 
 ### Header
 
-* Section name
-* Question number
-* Difficulty indicator
-* Question progress
+```text
+QUESTION 01
+AGE PROBLEM
+```
 
-### Question
+Then the complete question.
 
-Display the exact question from the worksheet.
-
-### Options
-
-Show each option as a selectable-looking option.
-
-When the user clicks an option:
-
-* Correct answer → green success state
-* Incorrect answer → red/error state
-* Show the correct answer
-* Don't allow the UI to imply an answer is correct if the worksheet information is insufficient or ambiguous
-
-### Solution button
-
-Button:
-
-**Show Step-by-Step Solution**
-
-When clicked, reveal:
-
-1. Concept
-2. Step-by-step reasoning
-3. Visual explanation
-4. Final answer
-
----
-
-# 7. Direction Sense — VISUALIZATION
-
-For Direction Sense questions, don't just write text.
-
-Create graphical diagrams using HTML/CSS/SVG.
+### Solution section
 
 Use:
 
-* Compass
-* North ↑
-* South ↓
-* East →
-* West ←
-* Person/start marker
-* Path lines
-* Distance labels
-* Final position marker
+**Step 1 — Define the variables**
 
-For example, Question 1 should visually show:
+**Step 2 — Translate the information into equations**
 
-```text
-             North
-               ↑
-               │ 8 km
-               │
-Start ●────────┐
-               │
-               │
-               ↓
-              8 km
-               
-        Final ●──────→ 6 km
-```
+**Step 3 — Solve**
 
-More accurately implement the actual path using SVG.
+**Step 4 — Verify**
 
-For Q1 explain:
+### Final Answer
 
-```text
-8 km North
-↓
-6 km East
-↓
-8 km South
-↓
-North/South movement cancels
-↓
-Remaining displacement = 6 km East
-```
-
-Final answer:
-
-**B) 6 km**
-
----
-
-# 8. Blood Relationship — FAMILY TREE
-
-For Blood Relationship questions, create interactive family-tree diagrams.
-
-Use nodes such as:
-
-```text
-        Grandfather
-             │
-           Father
-             │
-        ┌────┴────┐
-       Raj      Woman
-```
-
-Use different visual styles/icons for:
-
-* Male
-* Female
-* Parent
-* Child
-* Sibling
-
-Highlight the relationship being asked.
-
-For example:
-
-Q1:
-
-"She is the daughter of the only son of my grandfather."
-
-Show:
-
-```text
-Grandfather
-     │
-   Father
-     │
- ┌───┴───┐
-Raj    Woman
-```
-
-Then visually highlight:
-
-**Woman = Sister of Raj**
-
-Final answer:
-
-**A) Sister**
-
----
-
-# 9. Seating Arrangement — INTERACTIVE SEATING DIAGRAM
-
-For seating questions, create a visual row of seats.
+Use a visually prominent answer box.
 
 Example:
 
 ```text
-┌────┬────┬────┬────┬────┬────┐
-│ A  │ B  │ C  │ E  │ F  │ D  │
-└────┴────┴────┴────┴────┴────┘
-```
+✓ Final Answer
 
-Animate/highlight the people involved.
-
-Important:
-
-The worksheet's conditions allow more than one valid arrangement.
-
-Valid arrangements include:
-
-```text
-A B C E F D
-```
-
-and
-
-```text
-D A B C E F
-```
-
-Therefore clearly display:
-
-**⚠️ Worksheet Ambiguity**
-
-Explain why the conditions don't uniquely determine every answer.
-
-For Q1, Q3 and Q4, don't force an incorrect single answer.
-
-Show the possible arrangements and explain the ambiguity.
-
-For Q2:
-
-**E is immediately right of C**
-
-For Q5:
-
-**E is immediately right of C**
-
----
-
-# 10. Number Puzzles — ANIMATED PATTERN EXPLANATION
-
-For sequence questions, visually show the pattern.
-
-Example:
-
-```text
-3 → 7 → 15 → 31 → 63 → 127
-
-×2+1
-  ↓
-×2+1
-  ↓
-×2+1
-```
-
-For:
-
-```text
-2, 6, 12, 20, 30, 42
-```
-
-Show:
-
-```text
-1×2 = 2
-2×3 = 6
-3×4 = 12
-4×5 = 20
-5×6 = 30
-6×7 = 42
-```
-
-For formula-based questions, display the mathematical formula in a beautiful math-rendered component.
-
-Use **KaTeX or MathJax**.
-
----
-
-# 11. Logical Puzzles — ORDERING GRAPH
-
-For the marks question, visually represent:
-
-```text
-E
-↓
-C
-↓
-A
-↓
-B
-↓
-D
-```
-
-Then explain:
-
-```text
-E > C > A > B > D
-```
-
-Use animated arrows and highlighting.
-
-For Q4 show:
-
-```text
-C = 80
-A = 70
-
-Therefore:
-
-C > A > B
-
-B < 70
-
-Possible option:
-68 ✓
+Ram = 45 years
+Son = 13 years
 ```
 
 ---
 
-# 12. Series — VISUAL PATTERN
+# 6. Question 1 — Age Problem
 
-For alphabet series, show alphabet positions.
+Question:
 
-Example:
-
-```text
-A    C    F    J    O    U
-1    3    6   10   15   21
-
- +2   +3   +4   +5   +6
-```
-
-Highlight the increasing difference.
-
-For letter pairs:
-
-```text
-AB → DE → GH → JK → MN
-```
-
-Animate the sequence.
-
----
-
-# 13. Coding & Decoding — TRANSFORMATION VISUALIZER
-
-Show transformations letter-by-letter.
-
-For:
-
-```text
-CAT → DBU
-```
-
-display:
-
-```text
-C → D
-A → B
-T → U
-```
-
-Then:
-
-```text
-DOG
-
-D → E
-O → P
-G → H
-
-DOG → EPH
-```
-
-For numerical coding:
-
-```text
-APPLE
-
-A = 1
-P = 16
-P = 16
-L = 12
-E = 5
-
-1 + 16 + 16 + 12 + 5
-= 50
-```
-
-Then apply the same rule to CAT.
-
----
-
-# 14. Complete Question Data
-
-Implement ALL questions from the worksheet.
-
-## SECTION 01 — DIRECTION SENSE
-
-### Q1
-
-**Question:**
-
-Ravi walks 8 km north, then turns right and walks 6 km. He then turns right and walks 8 km. How far is he from his starting point?
-
-Options:
-
-* A) 2 km
-* B) 6 km
-* C) 8 km
-* D) 14 km
+> Ram tells his son, “5 years ago, I was 5 times as old as you were then. Also 3 years from now, I shall be 3 times as old as you will be”. Find their present ages.
 
 Solution:
 
-```text
-8 km North
-→ 6 km East
-→ 8 km South
+Let son's present age be:
 
-North and South movements cancel.
+[
+x
+]
 
-Remaining displacement = 6 km East.
+Let Ram's present age be:
 
-Answer: B) 6 km
-```
+[
+y
+]
 
----
+Five years ago:
 
-### Q2
-
-**Question:**
-
-A person walks 10 m south, turns left and walks 15 m, then turns left and walks 10 m. In which direction is he from his starting point?
-
-Answer:
-
-**B) East**
-
-Explanation:
-
-```text
-10 m South
-→ Left = East, 15 m
-→ Left = North, 10 m
-
-South and North cancel.
-
-Final position = East.
-```
-
----
-
-### Q3
-
-**Question:**
-
-Priya is facing east. She turns 90° clockwise, then 180° anticlockwise. Which direction is she facing now?
-
-Answer:
-
-**B) North**
-
-Explanation:
-
-```text
-East
-↓ 90° clockwise
-South
-↓ 180° anticlockwise
-North
-```
-
----
-
-### Q4
-
-**Question:**
-
-Arun is facing north. He turns right, walks 20 m, turns left, walks 15 m, and then turns left and walks 20 m. How far and in which direction is he from his starting point?
-
-Answer:
-
-**A) 15 m North**
-
-Explanation:
-
-```text
-20 m East
-15 m North
-20 m West
-
-East and West cancel.
-
-Final displacement = 15 m North.
-```
-
----
-
-### Q5
-
-**Question:**
-
-If the sun is setting directly in front of a person, which direction is the person facing?
-
-Answer:
-
-**B) West**
-
-Explanation:
-
-Sunset = West.
-
----
-
-# SECTION 02 — BLOOD RELATIONSHIP
-
-### Q1
-
-Answer: **A) Sister**
-
-Reason:
-
-Grandfather → only son = Father → Father's daughter = Sister.
-
-### Q2
-
-Answer: **B) Uncle**
-
-A is brother of B. B is mother of C. Therefore A is C's uncle.
-
-### Q3
-
-Answer: **B) Grandmother**
-
-R is mother of P. P is father of Q. S is Q's brother. Therefore R is S's grandmother.
-
-### Q4
-
-Answer: **B) Cousin**
-
-Father's sister = Aunt. Aunt's daughter = Cousin.
-
-### Q5
-
-Answer: **B) Uncle**
-
-M is brother of N, N is sister of O, O is father of P. Therefore M is P's uncle.
-
----
-
-# SECTION 03 — SEATING ARRANGEMENT
-
-Conditions:
-
-```text
-A is second left of C
-B immediately right of A
-D at one end
-E immediately left of F
-C is not at an end
-```
-
-Show the constraint-solving process.
-
-Valid arrangements:
-
-```text
-A B C E F D
-```
-
-and
-
-```text
-D A B C E F
-```
-
-### Q1
-
-**Ambiguous**
-
-Possible extreme-left person:
-
-* A
-* D
-
-### Q2
-
-**C) E**
-
-E is immediately right of C in both valid arrangements.
-
-### Q3
-
-**Ambiguous**
-
-Possible extreme pairs:
-
-* A and D
-* D and F
-
-### Q4
-
-**No valid option**
-
-B and C are adjacent, so nobody sits between them.
-
-### Q5
-
-**A) Immediately right**
-
-E is immediately right of C.
-
-Clearly display an **Ambiguous / Worksheet Issue** badge for Q1, Q3 and Q4.
-
----
-
-# SECTION 04 — NUMBER PUZZLES
-
-### Q1
-
-```text
-3, 7, 15, 31, 63, ?
-
-×2 + 1
-
-63 × 2 + 1 = 127
-```
-
-Answer: **B) 127**
-
-### Q2
-
-```text
-2, 6, 12, 20, 30, ?
-
-1×2
-2×3
-3×4
-4×5
-5×6
-6×7 = 42
-```
-
-Answer: **B) 42**
-
-### Q3
-
-16, 25, 36, 63
-
-16, 25 and 36 are perfect squares.
-
-63 is not.
-
-Answer: **D) 63**
-
-### Q4
-
-Rule:
-
-```text
-a × b = a² + b²
-```
+[
+y-5=5(x-5)
+]
 
 Therefore:
 
+[
+y=5x-20
+]
+
+Three years from now:
+
+[
+y+3=3(x+3)
+]
+
+Therefore:
+
+[
+y=3x+6
+]
+
+Equating:
+
+[
+5x-20=3x+6
+]
+
+[
+2x=26
+]
+
+[
+x=13
+]
+
+Therefore:
+
+[
+y=45
+]
+
+### Final Answer
+
+**Son = 13 years**
+
+**Ram = 45 years**
+
+### Visual
+
+Create a timeline showing:
+
 ```text
-10 × 11
-= 10² + 11²
-= 100 + 121
-= 221
+5 years ago        NOW             3 years later
+     |               |                   |
+   Ram 40          Ram 45              Ram 48
+   Son 8           Son 13              Son 16
 ```
 
-Answer: **B) 221**
-
-### Q5
-
-```text
-2 → 2³ = 8
-3 → 3³ = 27
-4 → 4³ = 64
-```
-
-Answer: **C) 64**
+Animate the timeline when the card enters the viewport.
 
 ---
 
-# SECTION 05 — LOGICAL PUZZLES
+# 7. Question 2 — Goats and Peacocks
+
+Question:
+
+> In a group of goats and peacocks, the number of legs is 14 more than twice the number of heads. The number of cows is:
+
+Important note:
+
+The worksheet says "cows", although the problem describes goats and peacocks. Clearly display this as a worksheet inconsistency instead of silently changing it.
+
+Solution:
+
+Let goats = (G)
+
+Let peacocks = (P)
+
+Heads:
+
+[
+G+P
+]
+
+Legs:
+
+[
+4G+2P
+]
 
 Given:
 
-```text
-A > B
-C > A
-B > D
-E > C
-```
+[
+4G+2P=2(G+P)+14
+]
 
-Therefore:
+Simplify:
 
-```text
-E > C > A > B > D
-```
+[
+4G+2P=2G+2P+14
+]
 
-### Q1
+[
+2G=14
+]
 
-Highest = **E**
+[
+G=7
+]
 
-Answer: **D) E**
+### Final Answer
 
-### Q2
+**7 goats**
 
-Lowest = **D**
+### Important Note
 
-Answer: **C) D**
+Show a warning card:
 
-### Q3
-
-Immediately below C = **A**
-
-Answer: **A) A**
-
-### Q4
-
-C = 80
-A = 70
-
-Therefore:
-
-```text
-C > A > B
-80 > 70 > B
-```
-
-B must be less than 70.
-
-Possible option = **68**
-
-Answer: **C) 68**
-
-### Q5
-
-E > C > A
-
-Therefore E scored more than A.
-
-Answer: **A) E scored more than A**
+> The worksheet asks for the number of "cows", but cows are not included in the described group. The mathematically derivable result is 7 goats.
 
 ---
 
-# SECTION 06 — SERIES
+# 8. Question 3 — Finger Counting
 
-### Q1
+Question:
 
-```text
-A C F J O ?
+> A girl counted in the following way on the fingers of her left hand: She started by calling the thumb 1, the index finger 2, middle finger 3, ring finger 4, little finger 5 and then reversed direction calling the ring finger 6, middle finger 7 and so on. She counted upto 1994. She ended counting on which finger?
 
-+2 +3 +4 +5 +6
-```
+Create a large interactive hand diagram.
 
-Answer = **U**
-
-**B) U**
-
-### Q2
+Label:
 
 ```text
-AB DE GH JK ?
+Thumb   Index   Middle   Ring   Little
+  1       2       3       4       5
+  9       8       7       6       5
 ```
 
-Each pair advances by 3.
+Explain that the repeating cycle contains 8 positions.
 
-Answer = **MN**
+[
+1994 \div 8
+]
 
-**B) MN**
+Remainder:
 
-### Q3
+[
+2
+]
 
-```text
-1A
-3C
-5E
-7G
-9I
-```
+The second position is the index finger.
 
-Answer = **B) 9I**
+### Final Answer
 
-### Q4
+**Index Finger**
 
-```text
-B E J Q Z ?
-
-2 5 10 17 26 ?
-
-+3 +5 +7 +9 +11
-```
-
-26 + 11 = 37.
-
-Wrap around alphabet:
-
-37 − 26 = 11 = K.
-
-Answer: **C) K**
-
-### Q5
-
-```text
-C F J O U ?
-
-3 6 10 15 21 ?
-
-+3 +4 +5 +6 +7
-```
-
-21 + 7 = 28 → B.
-
-Answer: **C) B**
+Make the index finger visually highlighted.
 
 ---
 
-# SECTION 07 — CODING & DECODING
+# 9. Question 4 — Direction and Distance
 
-### Q1
+Create an interactive coordinate-plane diagram.
 
-```text
-CAT → DBU
-```
+Question involves:
 
-Each letter moves +1.
+* S = 20 m south of P
+* Q = 15 m south of R
+* U = 15 m north of V
+* T = 20 m east of V
+* U = 16 m east of Q
+* R = 30 m east of P
 
-```text
-D → E
-O → P
-G → H
-```
+For the S → Q calculation:
 
-DOG → EPH
+Set:
 
-Answer: **A) EPH**
+[
+P=(0,0)
+]
 
-### Q2
+[
+S=(0,-20)
+]
 
-The worksheet gives:
+[
+R=(30,0)
+]
 
-```text
-COMPUTER → RFUVQNPD
-```
+[
+Q=(30,-15)
+]
 
-but this does not provide a sufficiently clear/consistent rule for uniquely determining the coding of SCIENCE.
+Then:
 
-Do NOT invent a solution.
+[
+\Delta x=30
+]
 
-Display:
+[
+\Delta y=5
+]
 
-**⚠️ Insufficient information**
+Distance:
 
-and explain that the given example does not establish a unique coding rule.
+[
+d=\sqrt{30^2+5^2}
+]
 
-### Q3
+[
+d=\sqrt{925}
+]
 
-```text
-APPLE
+[
+d=5\sqrt{37}
+]
 
-A = 1
-P = 16
-P = 16
-L = 12
-E = 5
+Show a right triangle connecting S and Q.
 
-Total = 50
-```
+### Final Answer
 
-For CAT:
-
-```text
-C = 3
-A = 1
-T = 20
-
-3 + 1 + 20 = 24
-```
-
-Answer: **A) 24**
-
-### Q4
-
-Given:
-
-```text
-go fast = ka la
-fast runner = la ma
-runner wins = ma pa
-```
-
-Common word:
-
-```text
-fast = la
-runner = ma
-wins = pa
-```
-
-Answer: **D) pa**
-
-### Q5
-
-MOBILE → ELIBOM
-
-This is reversal.
-
-Therefore:
-
-```text
-LAPTOP
-↓
-POTPAL
-```
-
-Answer:
-
-**POTPAL**
-
-The worksheet's options appear to contain a typo/duplicate. Display this as a worksheet issue rather than silently changing the original option text.
+**A — (5\sqrt{37}) m**
 
 ---
 
-# 15. Solution UX
+# 10. Question 5 — Mithu, Deva and Shakshi
 
-Every question should support:
+Create a coordinate diagram.
 
-### "Try Yourself"
-
-Initially hide the solution.
-
-User sees:
+Place:
 
 ```text
-[ Choose an answer ]
-
-[ Check Answer ]
-
-[ Show Solution ]
+                 Mithu
+                   ●
+                   |
+                 40 m
+                   |
+Jas ●─────────────● Deva
+   0 m            20 m
+   |
+   |
+Shakshi ●
 ```
 
-After answering:
-
-```text
-✓ Correct!
-
-or
-
-✕ Incorrect
-Correct answer: B
-```
-
-Then allow:
-
-**Show Explanation**
-
----
-
-# 16. Visual Explanation Components
-
-Build reusable components such as:
-
-```text
-<DirectionDiagram />
-<FamilyTree />
-<SeatingChart />
-<NumberPattern />
-<OrderingGraph />
-<SeriesVisualizer />
-<CodingVisualizer />
-<StepByStep />
-<AnswerCard />
-<AmbiguityWarning />
-```
-
-Do not create one giant component.
-
-Keep the question data separate from UI components so questions can easily be modified later.
-
----
-
-# 17. Suggested Data Architecture
-
-Store the questions as structured data:
-
-```ts
-type Question = {
-  id: string;
-  section: string;
-  number: number;
-  question: string;
-  options: string[];
-  correctAnswer?: string;
-  status: "solved" | "ambiguous" | "insufficient-information";
-  explanation: string[];
-  visualization?: {
-    type: string;
-    data: unknown;
-  };
-};
-```
-
-This should make the UI data-driven.
-
----
-
-# 18. Technology
+More accurately position Shakshi 60m west/east according to the worksheet's stated relation and ensure the mathematical coordinates used in the calculation are clearly shown.
 
 Use:
 
-* Next.js
-* TypeScript
-* Tailwind CSS
-* shadcn/ui
-* Lucide icons
-* Framer Motion or Motion
-* SVG for diagrams
-* KaTeX/MathJax for mathematical expressions
+Jas:
 
-Do not use unnecessary libraries.
+[
+(0,0)
+]
 
-Make the application performant and accessible.
+Deva:
+
+[
+(20,0)
+]
+
+Shakshi:
+
+[
+(60,0)
+]
+
+Mithu:
+
+[
+(20,40)
+]
+
+Direct distance:
+
+[
+\sqrt{40^2+40^2}
+]
+
+[
+=40\sqrt2
+]
+
+[
+\approx56.57m
+]
+
+Via Deva:
+
+[
+40+40=80m
+]
+
+Saving:
+
+[
+80-56.57=23.43m
+]
+
+### Final Answer
+
+**D — 23.44 m approximately**
+
+Show both routes in different visual styles.
 
 ---
 
-# 19. Responsive Design
+# 11. Question 6 — Handshakes
 
-Desktop:
+Question:
 
-```text
-Sidebar       Main Content
-              Question
-              Question
-              Question
-```
+> In a birthday party, every person shakes hand with every other person. If there was a total of 30 handshakes in the party, how many persons were present?
 
-Mobile:
+Show a visual network of people shaking hands.
 
-```text
-Header
-Section selector
-Question
-Question
-Question
-```
+Formula:
 
-All diagrams must scale correctly on mobile.
+[
+\frac{n(n-1)}{2}=30
+]
+
+Therefore:
+
+[
+n(n-1)=60
+]
+
+[
+n^2-n-60=0
+]
+
+Factor:
+
+[
+(n-10)(n+6)=0
+]
+
+Therefore:
+
+[
+n=10
+]
+
+### Final Answer
+
+**10 persons**
+
+Optionally animate 10 dots and demonstrate that every pair creates one handshake.
 
 ---
 
-# 20. Extra Features
+# 12. Question 7 — Day Number Puzzle
+
+Display the original puzzle visually:
+
+```text
+Monday    = 617
+Tuesday   = 729
+Wednesday = 9312
+Thursday  = 8412
+Friday    = 6511
+Saturday  = 8614
+
+Sunday = ?
+```
+
+Explain the pattern.
+
+For Monday:
+
+* 6 letters
+* Day number = 1
+* 6 + 1 = 7
+
+→ 617
+
+Tuesday:
+
+* 7 letters
+* Day number = 2
+* 7 + 2 = 9
+
+→ 729
+
+For Sunday:
+
+* 6 letters
+* Day number = 7
+* 6 + 7 = 13
+
+Therefore:
+
+[
+\boxed{6713}
+]
+
+### Final Answer
+
+**6713**
+
+Include an animated "pattern discovery" effect.
+
+---
+
+# 13. Question 8 — Family Ages
+
+Question:
+
+> A is 12 years older to B and 9 years younger to C, while B and D are twins. How many years older is C to D?
+
+Show an age relationship diagram:
+
+```text
+D = B
+    ↓
+A = B + 12
+    ↓
+C = A + 9
+```
+
+Therefore:
+
+[
+C=B+12+9
+]
+
+[
+C=B+21
+]
+
+Since:
+
+[
+B=D
+]
+
+Therefore:
+
+[
+C=D+21
+]
+
+### Final Answer
+
+**C is 21 years older than D.**
+
+---
+
+# 14. Question 9 — Page Number Digits
+
+Question:
+
+> The total number of digits used in numbering the pages of a book having 499 pages is.
+
+Create a visual breakdown:
+
+```text
+Pages 1–9       → 9 × 1   = 9
+Pages 10–99     → 90 × 2  = 180
+Pages 100–499   → 400 × 3 = 1200
+--------------------------------
+Total                      = 1389
+```
+
+Animate each section appearing sequentially.
+
+Formula:
+
+[
+9+180+1200=1389
+]
+
+### Final Answer
+
+**1389 digits**
+
+---
+
+# 15. Question 10 — Star Number Puzzle
+
+Recreate the star puzzle from the worksheet using SVG/CSS.
+
+Display the three stars exactly as provided.
+
+First:
+
+```text
+        3
+    2       8
+       10
+    4       1
+```
+
+Second:
+
+```text
+        2
+    5       6
+        6
+    7       10
+```
+
+Third:
+
+```text
+        11
+    9        4
+        ?
+    2        3
+```
+
+IMPORTANT:
+
+Do not invent a definitive answer.
+
+Explain that the two completed examples do not provide enough information to uniquely determine the intended rule.
+
+Display:
+
+### Status
+
+⚠️ **Ambiguous puzzle**
+
+### Explanation
+
+> Multiple mathematical rules can be constructed from only two examples, so the missing value cannot be determined uniquely from the supplied worksheet.
+
+Make this visually clear rather than presenting a guessed answer.
+
+---
+
+# 16. Question 11 — Odd One Out
+
+Question:
+
+> Find the odd one out N, L, J, H, G.
+
+Display letters with alphabet positions:
+
+```text
+N = 14
+L = 12
+J = 10
+H = 8
+G = 7
+```
+
+Pattern:
+
+```text
+14 → 12 → 10 → 8 → 6
+```
+
+The expected final letter would be F.
+
+Therefore G breaks the pattern.
+
+### Final Answer
+
+**G**
+
+---
+
+# 17. Question 12 — Wrong Term
+
+Question:
+
+```text
+6, 15, 35, 77, 179, 221
+```
+
+Show the intended pattern:
+
+[
+6\times2+3=15
+]
+
+[
+15\times2+5=35
+]
+
+[
+35\times2+7=77
+]
+
+Then:
+
+[
+77\times2+9=163
+]
+
+But the worksheet gives:
+
+[
+179
+]
+
+Therefore 179 appears to be wrong.
+
+However, explicitly mention that **221 also does not continue the same rule**, meaning the worksheet may contain an additional error.
+
+### Final Answer
+
+**179 appears to be the intended wrong term, but the series itself is inconsistent.**
+
+Use a warning/info component for this question.
+
+---
+
+# 18. Question 13 — Temperature
+
+Question:
+
+> The average temperature for Monday, Tuesday, Wednesday and Thursday was 48 degrees and for Tuesday, Wednesday, Thursday and Friday was 46 degrees. If the temperature on Monday was 42 degrees. Find the temperature on Friday?
+
+Show two overlapping sets visually.
+
+Monday–Thursday:
+
+[
+48\times4=192
+]
+
+Monday:
+
+[
+42
+]
+
+Therefore:
+
+[
+Tue+Wed+Thu=150
+]
+
+Tuesday–Friday:
+
+[
+46\times4=184
+]
+
+Therefore:
+
+[
+150+Friday=184
+]
+
+[
+Friday=34
+]
+
+### Final Answer
+
+**34°C**
+
+---
+
+# 19. Question 14 — Wrong Number
+
+Display:
+
+```text
+7 → 8 → 18 → 57 → 219 → 1165 → 6996
+```
+
+Show the rule:
+
+[
+7\times1+1=8
+]
+
+[
+8\times2+2=18
+]
+
+[
+18\times3+3=57
+]
+
+Next should be:
+
+[
+57\times4+4=232
+]
+
+But worksheet says:
+
+[
+219
+]
+
+Verify:
+
+[
+232\times5+5=1165
+]
+
+[
+1165\times6+6=6996
+]
+
+Therefore:
+
+### Final Answer
+
+**219**
+
+Use a red/error indicator on 219 and show the corrected 232.
+
+---
+
+# 20. Question 15 — Letter Puzzle
+
+Recreate the 3×3 hexagonal letter grid:
+
+```text
+E   M   H
+N   O   A
+I   ?   D
+```
+
+Convert letters to alphabet positions.
+
+Row 1:
+
+[
+5+13+8=26
+]
+
+Row 2:
+
+[
+14+15+1=30
+]
+
+The row sums increase by 4.
+
+Therefore Row 3 should equal:
+
+[
+34
+]
+
+So:
+
+[
+9+?+4=34
+]
+
+[
+?=21
+]
+
+21st letter = U.
+
+### Final Answer
+
+**U**
+
+Highlight U in the visual grid.
+
+---
+
+# 21. Question 16 — Number Pyramid
+
+Recreate the exact number pyramid:
+
+```text
+        9
+       4 3
+      1 8 1
+     2 1 7 ?
+```
+
+Calculate column totals:
+
+First:
+
+[
+9+4+1+2=16
+]
+
+Second:
+
+[
+3+8+1=12
+]
+
+Third:
+
+[
+1+7=8
+]
+
+The totals decrease by 4:
+
+[
+16,\ 12,\ 8,\ 4
+]
+
+Therefore:
+
+[
+?=4
+]
+
+### Final Answer
+
+**4**
+
+---
+
+# 22. Design System
+
+Make the website visually impressive.
+
+Use:
+
+* Large rounded cards
+* Subtle shadows
+* Glassmorphism where appropriate
+* Clean borders
+* Soft gradients
+* Good whitespace
+* Strong typography hierarchy
+* Mathematical expressions in large readable format
+* Smooth animations
+
+Avoid:
+
+* Excessive gradients
+* Excessive animations
+* Clutter
+* Tiny text
+* Huge paragraphs
+* Generic dashboard styling
+
+The website should feel like a **premium interactive learning platform**.
+
+---
+
+# 23. Color Semantics
+
+Use colors semantically:
+
+* Blue → information
+* Green → correct/final answer
+* Yellow → important concept
+* Red → error/wrong term
+* Purple → mathematical/formula sections
+
+Do not overuse colors.
+
+---
+
+# 24. Animations
+
+Use subtle animations:
+
+* Cards fade/slide in when entering viewport
+* Formula steps appear sequentially
+* Number counters animate
+* Diagram elements draw themselves
+* Active question indicator updates while scrolling
+* Hover effects on navigation
+* Smooth scrolling
+* Final answer gets a subtle highlight animation
+
+Respect `prefers-reduced-motion`.
+
+---
+
+# 25. Interactive Features
 
 Add:
 
-* Search questions
-* Filter by section
-* Filter unanswered/answered
-* Progress tracking
-* "Show all solutions"
-* "Hide all solutions"
-* Dark mode
+### Show/Hide Solution
+
+Each question should initially show:
+
+**Show Solution**
+
+Clicking it expands the solution.
+
+Also provide:
+
+**Hide Solution**
+
+---
+
+### Step-by-Step Mode
+
+For difficult questions, provide:
+
+`← Previous Step`
+
+`Next Step →`
+
+Only one reasoning step is displayed at a time.
+
+At the end:
+
+**Reveal Final Answer**
+
+---
+
+### Copy Formula
+
+Every important formula should have a small copy button.
+
+---
+
+### Question Progress
+
+Track which questions the user has viewed.
+
+Example:
+
+```text
+Questions completed
+
+██████████░░░░░░ 10 / 16
+```
+
+---
+
+# 26. Mobile Design
+
+On mobile:
+
+* One question card per screen
+* Sticky bottom navigation
+* Large touch targets
+* Diagrams resize properly
+* No horizontal scrolling
+* Mathematical formulas remain readable
+
+---
+
+# 27. Accessibility
+
+Implement:
+
+* Semantic HTML
 * Keyboard navigation
-* Smooth scroll
-* Back-to-top button
-* Section completion indicators
-* Question number navigation
-
-Persist progress using `localStorage`.
-
----
-
-# 21. Important Accuracy Rules
-
-Do NOT change the original question wording.
-
-Do NOT silently fix mistakes in the worksheet.
-
-Where the worksheet is ambiguous or contains insufficient information:
-
-* Clearly mark it
-* Explain why
-* Show the possible interpretations
-* Never invent an answer
-
-Known worksheet issues:
-
-### Seating Arrangement
-
-Q1, Q3 and Q4 are ambiguous/invalid under the given conditions.
-
-### Coding Q2
-
-The provided COMPUTER → RFUVQNPD example does not establish a sufficiently clear unique rule.
-
-### Coding Q5
-
-The correct reversal of LAPTOP is:
-
-**POTPAL**
-
-but the worksheet's option list appears to contain a typo/duplicate.
+* ARIA labels where necessary
+* Good color contrast
+* Reduced-motion support
+* Screen-reader-friendly mathematical explanations
+* Focus states
 
 ---
 
-# 22. Final Quality Requirement
+# 28. Data Architecture
 
-The finished website should feel like a **real interactive learning product**, not a document viewer.
+Keep the questions in structured data rather than hardcoding the content into JSX.
 
-A student should be able to:
+Example:
 
-1. Read the question
-2. Think about it
-3. Select an answer
-4. Check the answer
-5. See the correct solution
-6. Understand the reasoning visually
-7. Move to the next question
+```ts
+const questions = [
+  {
+    id: 1,
+    category: "Ages",
+    question: "...",
+    answer: "...",
+    difficulty: "Easy",
+    steps: [...]
+  },
+  ...
+]
+```
 
-Every question must be independently understandable.
+This should make it easy to add more worksheets later.
 
-Prioritize **clarity, visual reasoning, beautiful UI, animations, and educational value** over excessive decoration.
+---
 
-Build the complete working webpage, not just a mockup.
+# 29. Component Architecture
+
+Create reusable components such as:
+
+```text
+App
+├── Header
+├── Hero
+├── QuestionNavigation
+├── ProgressBar
+├── Worksheet
+│   ├── QuestionCard
+│   ├── QuestionHeader
+│   ├── ProblemStatement
+│   ├── SolutionSteps
+│   ├── FormulaBlock
+│   ├── Diagram
+│   ├── FinalAnswer
+│   └── ImportantNote
+└── Footer
+```
+
+Create specialized visual components:
+
+```text
+AgeTimeline
+CoordinateDiagram
+FingerDiagram
+HandshakeDiagram
+DayPattern
+AgeRelationship
+PageDigitBreakdown
+StarPuzzle
+LetterGrid
+NumberPyramid
+```
+
+---
+
+# 30. Important Accuracy Requirement
+
+Do not silently modify the worksheet.
+
+Where the worksheet contains an apparent typo, inconsistency, or ambiguous puzzle, explicitly show:
+
+> ⚠️ Worksheet Issue
+
+and explain the issue.
+
+Known issues:
+
+### Question 2
+
+The worksheet asks for "number of cows", although the group is described as goats and peacocks.
+
+### Question 10
+
+The star puzzle does not provide enough information to establish a unique rule.
+
+### Question 12
+
+The sequence appears inconsistent because the intended pattern suggests 163 after 77, but the worksheet gives 179, and 221 also doesn't follow the apparent rule.
+
+The UI should make these issues obvious.
+
+---
+
+# 31. Final Experience
+
+The final webpage should feel like:
+
+> **An interactive tutor explaining a worksheet**
+
+not:
+
+> **A PDF converted into HTML**
+
+Every question should answer three things:
+
+1. **What is the problem asking?**
+2. **How do we solve it?**
+3. **Why is the answer correct?**
+
+Use diagrams whenever a visual explanation is more intuitive than text.
+
+The user should be able to open the webpage and learn the entire worksheet without needing any external explanation.
+
+Build the complete working website, not just a mockup.

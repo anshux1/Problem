@@ -1,200 +1,93 @@
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
   Check,
   ChevronDown,
   Eye,
   EyeOff,
+  Flag,
+  Maximize2,
   X,
 } from "lucide-react";
+import { useState } from "react";
 
-import type { Question, WorksheetSection } from "@/lib/worksheet-data";
-import { AnswerCard, AmbiguityWarning, StepByStep } from "./solution-parts";
+import type { Question } from "@/lib/worksheet-data";
+import { ApproachBlock, FinalAnswer, ImportantNote, SolutionStepBlock } from "./solution-parts";
 import { VisualizationRenderer } from "./visualizations";
 
 type QuestionCardProps = {
   question: Question;
-  section: WorksheetSection;
-  selectedAnswer?: string;
-  isChecked: boolean;
+  totalQuestions: number;
   isRevealed: boolean;
-  onSelect: (questionId: string, optionLabel: string) => void;
-  onCheck: (questionId: string) => void;
+  stepIndex: number;
   onToggleSolution: (questionId: string) => void;
+  onStepChange: (questionId: string, stepIndex: number) => void;
   onNext: (questionId: string) => void;
   hasNext: boolean;
 };
 
-export function QuestionCard({
-  question,
-  section,
-  selectedAnswer,
-  isChecked,
-  isRevealed,
-  onSelect,
-  onCheck,
-  onToggleSolution,
-  onNext,
-  hasNext,
-}: QuestionCardProps) {
-  const isReview = question.status !== "solved";
-  const selectedOption = question.options.find((option) => option.label === selectedAnswer);
-  const hasCorrectChoice = question.correctOptions?.includes(selectedAnswer ?? "") ?? false;
+export function QuestionCard({ question, totalQuestions, isRevealed, stepIndex, onToggleSolution, onStepChange, onNext, hasNext }: QuestionCardProps) {
+  const [selectedOption, setSelectedOption] = useState<string>();
+  const [optionChecked, setOptionChecked] = useState(false);
+  const finalRevealed = stepIndex >= question.steps.length;
+  const safeStep = Math.min(stepIndex, Math.max(question.steps.length - 1, 0));
+  const statusLabel = question.status === "solved" ? "Solved lesson" : question.status === "ambiguous" ? "Ambiguous puzzle" : question.status === "insufficient-information" ? "Insufficient info" : "Worksheet issue";
 
   return (
-    <article className={`question-card ${isRevealed ? "is-expanded" : ""} ${isReview ? "question-card--review" : ""}`} id={`question-${question.id}`}>
-      <div className="question-card__topline">
+    <article className={`question-card ${isRevealed ? "is-expanded" : ""} question-card--${question.status}`} id={`question-${question.id}`}>
+      <div className="question-card__header">
         <div className="question-card__identity">
-          <span className="question-number">Question {String(question.number).padStart(2, "0")}</span>
-          <span className="question-section">{section.name}</span>
+          <div className="question-number">{String(question.number).padStart(2, "0")}</div>
+          <div><span className="question-kicker">Question {String(question.number).padStart(2, "0")}</span><strong>{question.category}</strong></div>
         </div>
         <div className="question-card__meta">
-          <span className={`difficulty difficulty--${question.difficulty.toLowerCase().replace("-", "-")}`}>
-            <i /> {question.difficulty}
-          </span>
-          <span className={`status-badge status-badge--${question.status}`}>
-            {statusLabel(question.status)}
-          </span>
-          <span className="question-count">{String(question.number).padStart(2, "0")} / 05</span>
+          <span className={`difficulty difficulty--${question.difficulty.toLowerCase()}`}><i /> {question.difficulty}</span>
+          <span className={`status-badge status-badge--${question.status}`}>{statusLabel}</span>
+          <span className="question-index">{String(question.number).padStart(2, "0")} / {totalQuestions}</span>
         </div>
       </div>
 
-      <div className="question-card__body">
-        <h3>{question.question}</h3>
-        <AmbiguityWarning status={question.status} note={question.statusNote} />
+      <div className="question-card__problem">
+        <div className="problem-label"><span>Problem statement</span><span>{question.status === "solved" ? "Think it through" : "Read the note carefully"}</span></div>
+        <h2>{question.question}</h2>
+        {question.context ? <div className="question-context"><Flag size={15} /><p>{question.context}</p></div> : null}
+        {question.options?.length ? <div className="worksheet-options"><span className="section-label">Worksheet options</span><div role="group" aria-label={`Options for question ${question.number}`}>{question.options.map((option) => {
+          const isSelected = selectedOption === option.label;
+          const isCorrect = question.correctOptions?.includes(option.label) ?? false;
+          const showCorrect = optionChecked && isCorrect && question.status === "solved";
+          const showWrong = optionChecked && isSelected && !isCorrect && question.status === "solved";
+          const showReview = optionChecked && isSelected && question.status !== "solved";
+          return <button className={`worksheet-option ${isSelected ? "is-selected" : ""} ${showCorrect ? "is-correct" : ""} ${showWrong ? "is-wrong" : ""} ${showReview ? "is-review" : ""}`} type="button" key={option.label} aria-pressed={isSelected} onClick={() => { setSelectedOption(option.label); setOptionChecked(false); }}><b>{option.label})</b><span>{option.text}</span>{showCorrect ? <Check size={14} /> : null}{showWrong ? <X size={14} /> : null}{showReview ? <AlertTriangle size={14} /> : null}</button>;
+        })}</div>{selectedOption && !optionChecked ? <button className="option-check" type="button" onClick={() => setOptionChecked(true)}><Check size={13} /> Check selected option</button> : null}{optionChecked ? <div className={`option-feedback ${question.status === "solved" ? (question.correctOptions?.includes(selectedOption ?? "") ? "is-correct" : "is-wrong") : "is-review"}`}>{question.status === "solved" ? (question.correctOptions?.includes(selectedOption ?? "") ? "Correct choice — now open the solution." : `Review the solution. Correct: ${question.correctOptions?.join(" / ") ?? "not uniquely determined"}.`) : "This worksheet item needs review rather than a forced option."}</div> : null}</div> : null}
+      </div>
 
-        <div className="options-label-row">
-          <span>Choose an answer</span>
-          <span>{selectedAnswer ? `Selected ${selectedAnswer}` : "Take a moment to think"}</span>
+      {!isRevealed ? (
+        <div className="reveal-row">
+          <div className="reveal-prompt"><span className="reveal-pulse" /><div><strong>Ready to see the reasoning?</strong><small>Work it out first, then reveal one step at a time.</small></div></div>
+          <button className="reveal-button" type="button" onClick={() => onToggleSolution(question.id)}><Eye size={16} /> Show solution <ChevronDown size={15} /></button>
         </div>
-        <div className="option-list" role="group" aria-label={`Answer options for question ${question.number}`}>
-          {question.options.map((option) => {
-            const isSelected = selectedAnswer === option.label;
-            const isCorrect = question.correctOptions?.includes(option.label) ?? false;
-            const showCorrect = isChecked && !isReview && isCorrect;
-            const showWrong = isChecked && !isReview && isSelected && !isCorrect;
-            const showIssueAnswer = isChecked && question.status === "worksheet-issue" && isCorrect;
-            const showReview = isChecked && isReview && isSelected;
+      ) : (
+        <div className="solution-area">
+          <ApproachBlock question={question} />
+          <div className="solution-divider"><span>Working</span><i /></div>
+          <div className="step-progress-row"><span>Guided solution</span><strong>{finalRevealed ? "Final answer" : `Step ${safeStep + 1} of ${question.steps.length}`}</strong><div className="step-progress"><i style={{ width: `${finalRevealed ? 100 : ((safeStep + 1) / question.steps.length) * 100}%` }} /></div></div>
+          {!finalRevealed && question.steps[safeStep] ? <SolutionStepBlock step={question.steps[safeStep]} index={safeStep} total={question.steps.length} /> : null}
 
-            return (
-              <button
-                className={`option-button ${isSelected ? "is-selected" : ""} ${showCorrect ? "is-correct" : ""} ${showWrong ? "is-wrong" : ""} ${showIssueAnswer ? "is-issue-answer" : ""} ${showReview ? "is-review" : ""}`}
-                key={option.label}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => onSelect(question.id, option.label)}
-              >
-                <span className="option-letter">{option.label}</span>
-                <span className="option-text">{option.text}</span>
-                <span className="option-state" aria-hidden="true">
-                  {showCorrect || showIssueAnswer ? <Check size={17} /> : null}
-                  {showWrong ? <X size={17} /> : null}
-                  {showReview ? <AlertTriangle size={16} /> : null}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {selectedOption && !isChecked ? (
-          <div className="selection-hint" aria-live="polite">
-            <span className="selection-hint__dot" />
-            {selectedOption.label}) {selectedOption.text} selected. Check it when you are ready.
+          <div className="solution-actions">
+            <button className="step-button step-button--hide" type="button" onClick={() => onToggleSolution(question.id)}><EyeOff size={15} /> Hide solution</button>
+            <button className="step-button" type="button" disabled={safeStep <= 0} onClick={() => onStepChange(question.id, Math.max(0, safeStep - 1))}><ArrowLeft size={15} /> Previous step</button>
+            {!finalRevealed ? <button className="step-button step-button--primary" type="button" onClick={() => onStepChange(question.id, Math.min(question.steps.length, safeStep + 1))}>{safeStep === question.steps.length - 1 ? "Reveal final answer" : "Next step"} <ArrowRight size={15} /></button> : <button className="step-button" type="button" onClick={() => onStepChange(question.id, Math.max(0, question.steps.length - 1))}><EyeOff size={15} /> Review steps</button>}
           </div>
-        ) : null}
 
-        <div className="question-actions">
-          <button className="button button--primary" type="button" disabled={!selectedAnswer} onClick={() => onCheck(question.id)}>
-            <Check size={16} /> Check answer
-          </button>
-          <button className={`button button--solution ${isRevealed ? "is-open" : ""}`} type="button" onClick={() => onToggleSolution(question.id)} aria-expanded={isRevealed}>
-            {isRevealed ? <EyeOff size={16} /> : <Eye size={16} />}
-            {isRevealed ? "Hide explanation" : "Show step-by-step solution"}
-            <ChevronDown className="button-chevron" size={15} />
-          </button>
+          <div className="visual-explanation-heading"><span>Visual explanation</span><Maximize2 size={14} /></div>
+          <VisualizationRenderer visualization={question.visualization} questionId={question.id} />
+
+          {finalRevealed ? <FinalAnswer question={question} /> : <button className="answer-tease" type="button" onClick={() => onStepChange(question.id, question.steps.length)}>Finish the steps to reveal the final answer <ArrowRight size={14} /></button>}
+          {question.importantNote ? <ImportantNote>{question.importantNote}</ImportantNote> : null}
+          {hasNext ? <button className="next-question" type="button" onClick={() => onNext(question.id)}>Continue to Question {String(question.number + 1).padStart(2, "0")} <ArrowRight size={16} /></button> : null}
         </div>
-
-        {isChecked ? <AnswerFeedback question={question} hasCorrectChoice={hasCorrectChoice} /> : null}
-      </div>
-
-      {isRevealed ? (
-        <div className="solution-panel">
-          <StepByStep question={question} />
-          {question.visualization ? <VisualizationRenderer visualization={question.visualization} questionId={question.id} /> : null}
-          <AnswerCard question={question} />
-          {hasNext ? (
-            <button className="next-question" type="button" onClick={() => onNext(question.id)}>
-              Continue to next question <ArrowRight size={16} />
-            </button>
-          ) : null}
-        </div>
-      ) : null}
+      )}
     </article>
   );
-}
-
-function AnswerFeedback({ question, hasCorrectChoice }: { question: Question; hasCorrectChoice: boolean }) {
-  if (question.status === "insufficient-information") {
-    return (
-      <div className="answer-feedback answer-feedback--review" role="status" aria-live="polite">
-        <AlertTriangle size={17} />
-        <div><strong>Needs review</strong><span>No option is marked correct because the coding rule is not uniquely established.</span></div>
-      </div>
-    );
-  }
-
-  if (question.status === "ambiguous") {
-    return (
-      <div className="answer-feedback answer-feedback--review" role="status" aria-live="polite">
-        <AlertTriangle size={17} />
-        <div><strong>Worksheet ambiguity</strong><span>Your selection is recorded, but the supplied conditions do not support one unique answer.</span></div>
-      </div>
-    );
-  }
-
-  if (question.status === "worksheet-issue") {
-    return (
-      <div className="answer-feedback answer-feedback--issue" role="status" aria-live="polite">
-        {hasCorrectChoice ? <Check size={17} /> : <AlertTriangle size={17} />}
-        <div>
-          <strong>{hasCorrectChoice ? "Correct text, duplicated option" : "Review the worksheet issue"}</strong>
-          <span>{hasCorrectChoice ? "POTPAL is correct, but it appears as both options A and B." : "The answer is POTPAL; the worksheet duplicates that text as A and B."}</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (hasCorrectChoice) {
-    return (
-      <div className="answer-feedback answer-feedback--correct" role="status" aria-live="polite">
-        <Check size={17} />
-        <div><strong>Correct — nice work!</strong><span>You found the answer. Open the explanation to see the visual reasoning.</span></div>
-      </div>
-    );
-  }
-
-  const correct = question.correctOptions?.map((label) => {
-    const option = question.options.find((item) => item.label === label);
-    return option ? `${label}) ${option.text}` : label;
-  }).join(" or ");
-
-  return (
-    <div className="answer-feedback answer-feedback--wrong" role="status" aria-live="polite">
-      <X size={17} />
-      <div><strong>Not quite</strong><span>Correct answer: {correct}. Keep the reasoning visible as you review it.</span></div>
-    </div>
-  );
-}
-
-function statusLabel(status: Question["status"]) {
-  switch (status) {
-    case "ambiguous":
-      return "Needs review";
-    case "insufficient-information":
-      return "Insufficient info";
-    case "worksheet-issue":
-      return "Worksheet issue";
-    default:
-      return "Solved key";
-  }
 }
